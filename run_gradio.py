@@ -10,7 +10,7 @@ pipe = StableDiffusionInpaintPipeline.from_pretrained(
     torch_dtype=torch.float16,
 ).to('cuda')
 
-def fill_bottom(left_bottom, width):
+def find_bottom(left_bottom, width):
     x, y = left_bottom
     search_list = []
 
@@ -20,11 +20,10 @@ def fill_bottom(left_bottom, width):
     if width % 256 != 0:
         search_list.append((x + width - 512, y - 384))
 
-    print('search list:', search_list)
     return search_list
 
 
-def fill_top(left_top, width):
+def find_top(left_top, width):
     x, y = left_top
     search_list = []
 
@@ -34,10 +33,9 @@ def fill_top(left_top, width):
     if width % 256 != 0:
         search_list.append((x + width - 512, y - 128))
 
-    print('search list:', search_list)
     return search_list
 
-def fill_left(left_top, height):
+def find_left(left_top, height):
     x, y = left_top
     search_list = []
 
@@ -49,7 +47,7 @@ def fill_left(left_top, height):
     
     return search_list
 
-def fill_right(right_top, height):
+def find_right(right_top, height):
     x, y = right_top
     search_list = []
 
@@ -135,25 +133,25 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
 
     left_top, left_bottom, right_top, right_bottom = [left_border, top_border], [left_border, top_border + h], [left_border + w, top_border], [left_border + w, top_border + h]
 
-    search_list = fill_bottom(left_bottom, right_bottom[0] - left_bottom[0])
+    search_list = find_bottom(left_bottom, right_bottom[0] - left_bottom[0])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
     left_bottom[1] += 128
     right_bottom[1] += 128
 
-    search_list = fill_left(left_top, left_bottom[1] - left_top[1])
+    search_list = find_left(left_top, left_bottom[1] - left_top[1])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
     left_bottom[0] -= 128
     left_top[0] -= 128
 
-    search_list = fill_top(left_top, right_bottom[0] - left_bottom[0])
+    search_list = find_top(left_top, right_bottom[0] - left_bottom[0])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
     left_top[1] -= 128
     right_top[1] -= 128
 
-    search_list = fill_right(right_top, left_bottom[1] - left_top[1])
+    search_list = find_right(right_top, left_bottom[1] - left_top[1])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
     right_top[0] += 128
