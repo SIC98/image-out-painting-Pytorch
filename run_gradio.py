@@ -59,6 +59,43 @@ def find_right(right_top, height):
     
     return search_list
 
+def fill_bottom(left_bottom, right_bottom, image, mask_image):
+    search_list = find_bottom(left_bottom, right_bottom[0] - left_bottom[0])
+    image, mask_image = fill_search_list(search_list, image, mask_image)
+
+    left_bottom[1] += 128
+    right_bottom[1] += 128
+
+    return left_bottom, right_bottom, image, mask_image
+
+
+def fill_left(left_top, left_bottom, image, mask_image):
+    search_list = find_left(left_top, left_bottom[1] - left_top[1])
+    image, mask_image = fill_search_list(search_list, image, mask_image)
+
+    left_bottom[0] -= 128
+    left_top[0] -= 128
+
+    return left_top, left_bottom, image, mask_image
+
+def fill_right(right_bottom, right_top, image, mask_image):
+    search_list = find_right(right_top, right_bottom[1] - right_top[1])
+    image, mask_image = fill_search_list(search_list, image, mask_image)
+
+    right_top[0] += 128
+    right_bottom[0] += 128
+
+    return right_bottom, right_top, image, mask_image
+
+def fill_top(left_top, right_top, image, mask_image):
+    search_list = find_top(left_top, right_top[0] - left_top[0])
+    image, mask_image = fill_search_list(search_list, image, mask_image)
+
+    left_top[1] -= 128
+    right_top[1] -= 128
+
+    return left_top, right_top, image, mask_image
+
 
 def fill_search_list(search_list, image, mask_image):
     for x, y in search_list:
@@ -129,59 +166,13 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
     image = ImageOps.expand(image, border, fill='white')
     mask_image = ImageOps.expand(mask_image, border, fill='white')
 
-    # search_list = find_left(left_border, top_border, right_border + add_w, bottom_border + add_h)
-
     left_top, left_bottom, right_top, right_bottom = [left_border, top_border], [left_border, top_border + h], [left_border + w, top_border], [left_border + w, top_border + h]
 
-    search_list = find_bottom(left_bottom, right_bottom[0] - left_bottom[0])
-    image, mask_image = fill_search_list(search_list, image, mask_image)
-
-    left_bottom[1] += 128
-    right_bottom[1] += 128
-
-    search_list = find_left(left_top, left_bottom[1] - left_top[1])
-    image, mask_image = fill_search_list(search_list, image, mask_image)
-
-    left_bottom[0] -= 128
-    left_top[0] -= 128
-
-    search_list = find_top(left_top, right_bottom[0] - left_bottom[0])
-    image, mask_image = fill_search_list(search_list, image, mask_image)
-
-    left_top[1] -= 128
-    right_top[1] -= 128
-
-    search_list = find_right(right_top, left_bottom[1] - left_top[1])
-    image, mask_image = fill_search_list(search_list, image, mask_image)
-
-    right_top[0] += 128
-    right_bottom[0] += 128
-
-
-    return image
-
-
-
-
-    # x, y = posible_start_point(image)
-
-    # new_mask_image = Image.fromarray(mask_image_np)
-    # mask2_gray = new_mask_image.convert('L')
-
-    # mask1_array = np.array(mask1_gray)
-    # mask2_array = np.array(mask2_gray)
-
-    # result_array = np.logical_or(mask1_array == 255, mask2_array == 255)
-
-    # generated_image = crop_image(image, mask_image, 0, 0, 512, 512)
-    # image = merge_image(image, generated_image, 0, 0)
-
-    # Convert the result back to an image
-    # mask_image = Image.fromarray(np.uint8(result_array)*255)
-
-    # image = pipe(prompt='', image=image, mask_image=result_mask, height=height, width=width).images[0]
-
-    # return image
+    for _ in range(0, 4):
+        left_bottom, right_bottom, image, mask_image = fill_bottom(left_bottom, right_bottom, image, mask_image)
+        left_top, left_bottom, image, mask_image = fill_left(left_top, left_bottom, image, mask_image)
+        left_top, right_top, image, mask_image = fill_top(left_top, right_top, image, mask_image)
+        right_bottom, right_top, image, mask_image = fill_right(right_bottom, right_top, image, mask_image)
     
     width, height = image.size
     return image.crop((0, 0, width - add_w, height - add_h))
