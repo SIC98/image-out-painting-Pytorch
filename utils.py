@@ -5,13 +5,19 @@ import numpy as np
 import torch
 
 pipe = StableDiffusionInpaintPipeline.from_single_file(
-    # "runwayml/stable-diffusion-inpainting",
-    # "stabilityai/stable-diffusion-2-inpainting",
     "./civit_ai/dreamshaper_8Inpainting.safetensors",
     torch_dtype=torch.float16,
 ).to('cuda')
 
-pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(pipe.scheduler.config)
+# pipe = StableDiffusionInpaintPipeline.from_pretrained(
+#     "stabilityai/stable-diffusion-2-inpainting",
+#     torch_dtype=torch.float16,
+# ).to('cuda')
+
+pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(
+    pipe.scheduler.config
+)
+
 
 def find_bottom(left_bottom, width):
     x, y = left_bottom
@@ -38,6 +44,7 @@ def find_top(left_top, width):
 
     return search_list
 
+
 def find_left(left_top, height):
     x, y = left_top
     search_list = []
@@ -47,8 +54,9 @@ def find_left(left_top, height):
 
     if height % 256 != 0:
         search_list.append((x - 128, y + height - 512))
-    
+
     return search_list
+
 
 def find_right(right_top, height):
     x, y = right_top
@@ -59,7 +67,7 @@ def find_right(right_top, height):
 
     if height % 256 != 0:
         search_list.append((x - 384, y + height - 512))
-    
+
     return search_list
 
 
@@ -80,8 +88,8 @@ def fill_left(left_top, left_bottom, image, mask_image):
     left_bottom[0] -= 128
     left_top[0] -= 128
 
-
     return left_top, left_bottom, image, mask_image
+
 
 def fill_right(right_bottom, right_top, image, mask_image):
     search_list = find_right(right_top, right_bottom[1] - right_top[1])
@@ -91,6 +99,7 @@ def fill_right(right_bottom, right_top, image, mask_image):
     right_bottom[0] += 128
 
     return right_bottom, right_top, image, mask_image
+
 
 def fill_top(left_top, right_top, image, mask_image):
     search_list = find_top(left_top, right_top[0] - left_top[0])
@@ -117,12 +126,12 @@ def fill_search_list(search_list, image, mask_image):
         mask2_gray = new_mask_image.convert('L')
         mask2_array = np.array(mask2_gray)
 
-        # Generate and merge image
-        generated_image = crop_image(image, mask_image, x, y, x + 512, y + 512)
-        image = merge_image(image, generated_image, mask2_gray, x, y)
-
         mask1_gray = mask_image.convert('L')
         mask1_array = np.array(mask1_gray)
+
+        # Generate and merge image
+        generated_image = crop_image(image, mask_image, x, y, x + 512, y + 512)
+        image = merge_image(image, generated_image, mask1_gray, x, y)
 
         # Update mask_image
         result_array = np.logical_and(mask1_array == 255, mask2_array == 255)
@@ -138,14 +147,15 @@ def crop_image(image, result_mask, x, y, m, n):
     cropped_image = image.crop((x, y, m, n))
     cropped_mask = result_mask.crop((x, y, m, n))
 
-    images = pipe(prompt='', image=cropped_image, mask_image=cropped_mask, height=m-x, width=n-y).images
-    print(len(images))
+    images = pipe(prompt='', image=cropped_image,
+                  mask_image=cropped_mask, height=m-x, width=n-y).images
     return images[0]
 
 
 def merge_image(image, generated_image, mask2_gray, x, y):
-    mask = mask2_gray.crop((x, y, x + generated_image.width, y + generated_image.height))
-    mask = Image.eval(mask, lambda x: 255 - x)
+    mask2_gray.save('mask2_gray.png')
+    mask = mask2_gray.crop(
+        (x, y, x + generated_image.width, y + generated_image.height))
     image.paste(generated_image, (x, y), mask)
     # image.paste(generated_image, (x, y))
     return image
