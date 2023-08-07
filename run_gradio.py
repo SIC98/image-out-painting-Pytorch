@@ -1,14 +1,10 @@
+import pytorch_lightning as pl
 from PIL import Image, ImageOps
 import gradio as gr
-import torch
-import numpy as np
 
 from utils import fill_bottom, fill_top, fill_left, fill_right
 
-
-def posible_start_point(image):
-    x, y = image.size
-    return max(0, x - 512), max(0, y - 512)
+pl.seed_everything(42)
 
 
 def image_mod(image, left_border, right_border, top_border, bottom_border):
@@ -53,10 +49,10 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
 #     outputs="image",
 #     # flagging_options=["blurry", "incorrect", "other"],
 # )
+# demo.launch()
 
-if __name__ == "__main__":
-    # demo.launch()
-    image = Image.open('./imges/image1.png')
-    # image = image.resize((1024,1024))
+if __name__ == '__main__':
+    image = Image.open('./images/dog.png')
+    image = image.resize((1024, 1024))
     image = image_mod(image, 256, 256, 256, 256)
-    image.save("./result.png")
+    image.save('./results/dog.png')
