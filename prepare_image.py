@@ -10,7 +10,7 @@ out_painted_path = 'coco2014/out_painted/'
 all_files_and_dirs = os.listdir(directory_path)
 
 
-for item in all_files_and_dirs[:10]:
+for item in all_files_and_dirs[:100]:
     full_path = os.path.join(directory_path, item)
     if os.path.isfile(full_path):
 
