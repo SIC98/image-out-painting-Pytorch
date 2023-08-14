@@ -37,12 +37,15 @@ def get_pretrained_model(n_classes):
 
 if __name__ == "__main__":
     model = get_model(2, 4)
-    pretrained_model = get_pretrained_model(2, 4)
+    pretrained_model = get_pretrained_model(2)
 
-    input = torch.randn(1, 4, 256, 256)
+    input = torch.randn(5, 4, 256, 256)
 
     output = model(input)
     print(output.shape, output)
 
     output = pretrained_model(input)
     print(output.shape, output)
+
+    predict = torch.argmax(output, dim=1)
+    print(predict.shape, predict)
