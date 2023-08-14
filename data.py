@@ -2,18 +2,15 @@ from pytorch_lightning import LightningDataModule
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from PIL import Image
+import numpy as np
 import torch
 import json
 import os
 
 
-class SamDataset(Dataset):
-    """
-    A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
-    """
-
-    def __init__(self, type):
-
+class DummyDataset(Dataset):
+    def __init__(self):
+        super().__init__()
         self.image_transform = transforms.Compose([
             transforms.Resize((256, 256)),
             transforms.ToTensor(),
@@ -27,6 +24,10 @@ class SamDataset(Dataset):
             transforms.Resize((256, 256)),
             transforms.ToTensor(),
         ])
+
+
+class SamDataset(DummyDataset):
+    def __init__(self, type):
 
         with open("label.json", 'r') as j:
             self.label = json.load(j)
@@ -69,6 +70,31 @@ class SamDataset(Dataset):
 
     def __len__(self):
         return self.dataset_size
+
+
+def CustomSamDataset(DummyDataset):
+    def __init__(self, image, mask_images):
+        self.mask_images = mask_images
+        self.image = image
+
+    def __getitem__(self, i):
+        mask_array = self.mask_images[i]
+        mask_tensor = self.mask_transform(mask_array)
+        rgb_tensor = self.image_transform(self.image)
+
+        combined_tensor = torch.cat([rgb_tensor, mask_tensor], dim=0)
+
+        return combined_tensor
+
+    def __len__(self):
+        len(self.mask_images)
+
+
+def mask_array_to_image(mask_array):
+    img_array = (1 - mask_array.astype(np.uint8)) * 255
+    img = Image.fromarray(img_array, 'L')
+
+    return img
 
 
 if __name__ == "__main__":
