@@ -10,6 +10,7 @@ import wandb
 from resnet import get_pretrained_model
 from datamodules import SamDataModule
 from loggers import OutputLogger
+from datamodules import SamDataset
 
 pl.seed_everything(42)
 
@@ -75,7 +76,15 @@ if __name__ == "__main__":
     model = get_pretrained_model(n_classes=2)
     lightningmodule = LightningModule(model)
 
-    datamodule = SamDataModule()
+    train_dataset = SamDataset(type="train")
+    valid_dataset = SamDataset(type="validation")
+
+    train_dataloader = torch.utils.data.DataLoader(
+        train_dataset, batch_size=16, shuffle=True
+    )
+    valid_dataloader = torch.utils.data.DataLoader(
+        valid_dataset, batch_size=16, shuffle=False
+    )
 
     trainer = pl.Trainer(
         accelerator="gpu",
@@ -96,6 +105,7 @@ if __name__ == "__main__":
     )
 
     trainer.fit(
-        model=lightningmodule,
-        datamodule=datamodule,
+        lightningmodule,
+        train_dataloader,
+        valid_dataloader
     )
