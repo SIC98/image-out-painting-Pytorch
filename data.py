@@ -7,36 +7,6 @@ import json
 import os
 
 
-class SamDataModule(LightningDataModule):
-    def __init__(self):
-        super().__init__()
-        self.train_batch_size = 16
-        self.valid_batch_size = 16
-        self.num_workers = 4
-
-        self.train_dataset = SamDataset(type="train")
-        self.val_dataset = SamDataset(type="validation")
-
-    def train_dataloader(self):
-
-        return DataLoader(
-            dataset=self.train_dataset,
-            batch_size=self.train_batch_size,
-            drop_last=False,
-            num_workers=self.num_workers,
-            shuffle=True
-        )
-
-    def val_dataloader(self):
-        return DataLoader(
-            dataset=self.val_dataset,
-            batch_size=self.valid_batch_size,
-            drop_last=False,
-            num_workers=self.num_workers,
-            shuffle=False
-        )
-
-
 class SamDataset(Dataset):
     """
     A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
@@ -106,5 +76,5 @@ if __name__ == "__main__":
     print(len(dataset))
 
     for i, j in dataset:
-        print(i.shape,  j)
+        print(i.shape, j)
         break

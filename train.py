@@ -8,9 +8,8 @@ import torch
 import wandb
 
 from resnet import get_pretrained_model
-from datamodules import SamDataModule
 from loggers import OutputLogger
-from datamodules import SamDataset
+from data import SamDataset
 
 pl.seed_everything(42)
 
