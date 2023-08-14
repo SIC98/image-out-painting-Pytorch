@@ -1,9 +1,50 @@
-from torch.utils.data import Dataset
-from torchvision import datasets
-import torch
-from PIL import Image
+from pytorch_lightning import LightningDataModule
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
+from PIL import Image
+import torch
 import os
+
+
+class SamDataModule(LightningDataModule):
+    def __init__(self):
+        super().__init__()
+        self.train_batch_size = 16
+        self.valid_batch_size = 16
+        self.num_workers = 4
+
+        self.train_dataset = SamDataset(
+            image_ids=["COCO_val2014_000000491213",
+                       "COCO_val2014_000000516641",
+                       "COCO_val2014_000000533137",
+                       "COCO_val2014_000000542634",
+                       "COCO_val2014_000000543112",
+                       "COCO_val2014_000000550576",
+                       "COCO_val2014_000000581062"]
+        )
+
+        self.val_dataset = SamDataset(
+            image_ids=["COCO_val2014_000000576820.jpg"]
+        )
+
+    def train_dataloader(self):
+
+        return DataLoader(
+            dataset=self.train_dataset,
+            batch_size=self.train_batch_size,
+            drop_last=False,
+            num_workers=self.num_workers,
+            shuffle=True
+        )
+
+    def val_dataloader(self):
+        return DataLoader(
+            dataset=self.val_dataset,
+            batch_size=self.valid_batch_size,
+            drop_last=False,
+            num_workers=self.num_workers,
+            shuffle=False
+        )
 
 
 class SamDataset(Dataset):
@@ -11,7 +52,7 @@ class SamDataset(Dataset):
     A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
     """
 
-    def __init__(self):
+    def __init__(self, image_ids):
 
         self.image_transform = transforms.Compose([
             transforms.Resize((256, 256)),
@@ -37,6 +78,9 @@ class SamDataset(Dataset):
             "COCO_val2014_000000581062": [0, 3, 11, 28],
             "COCO_val2014_000000576820": [0, 10]
         }
+
+        self.label = {k: self.label[k]
+                      for k in self.label if k in image_ids}
 
         self.dataset = []
 
