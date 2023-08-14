@@ -31,7 +31,7 @@ def predict(input_img, masks):
     )
 
     combined_y_hat = torch.cat(y_hat)
-    indices_of_ones = (combined_y_hat == 1).nonzero(as_tuple=True)[0].tolist()
+    indices_of_ones = combined_y_hat.nonzero(as_tuple=True)[0].tolist()
 
     return indices_of_ones
 
@@ -57,7 +57,7 @@ def sepia(input_img):
     masks = mask_generator.generate(input_img)
     masks = [mask['segmentation'] for mask in masks]
 
-    output_img = Image.fromarray(input_img, 'RGB')
+    output_img = Image.fromarray(input_img, "RGB")
     indices_of_ones = predict(output_img, masks)
 
     output_img = mask_image(output_img, masks, indices_of_ones)
