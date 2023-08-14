@@ -28,7 +28,7 @@ class DummyDataset(Dataset):
 
 class SamDataset(DummyDataset):
     def __init__(self, type):
-
+        super().__init__()
         with open("label.json", 'r') as j:
             self.label = json.load(j)
 
@@ -72,14 +72,16 @@ class SamDataset(DummyDataset):
         return self.dataset_size
 
 
-def CustomSamDataset(DummyDataset):
+class CustomSamDataset(DummyDataset):
     def __init__(self, image, mask_images):
+        super().__init__()
         self.mask_images = mask_images
         self.image = image
 
     def __getitem__(self, i):
         mask_array = self.mask_images[i]
-        mask_tensor = self.mask_transform(mask_array)
+        mask_image = mask_array_to_image(mask_array)
+        mask_tensor = self.mask_transform(mask_image)
         rgb_tensor = self.image_transform(self.image)
 
         combined_tensor = torch.cat([rgb_tensor, mask_tensor], dim=0)
@@ -87,11 +89,11 @@ def CustomSamDataset(DummyDataset):
         return combined_tensor
 
     def __len__(self):
-        len(self.mask_images)
+        return len(self.mask_images)
 
 
 def mask_array_to_image(mask_array):
-    img_array = (1 - mask_array.astype(np.uint8)) * 255
+    img_array = mask_array.astype(np.uint8) * 255
     img = Image.fromarray(img_array, 'L')
 
     return img
