@@ -3,6 +3,7 @@ from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 from PIL import Image
 import torch
+import json
 import os
 
 
@@ -13,19 +14,8 @@ class SamDataModule(LightningDataModule):
         self.valid_batch_size = 16
         self.num_workers = 4
 
-        self.train_dataset = SamDataset(
-            image_ids=["COCO_val2014_000000491213",
-                       "COCO_val2014_000000516641",
-                       "COCO_val2014_000000533137",
-                       "COCO_val2014_000000542634",
-                       "COCO_val2014_000000543112",
-                       "COCO_val2014_000000550576",
-                       "COCO_val2014_000000581062"]
-        )
-
-        self.val_dataset = SamDataset(
-            image_ids=["COCO_val2014_000000576820.jpg"]
-        )
+        self.train_dataset = SamDataset(type="train")
+        self.val_dataset = SamDataset(type="validation")
 
     def train_dataloader(self):
 
@@ -52,7 +42,7 @@ class SamDataset(Dataset):
     A PyTorch Dataset class to be used in a PyTorch DataLoader to create batches.
     """
 
-    def __init__(self, image_ids):
+    def __init__(self, type):
 
         self.image_transform = transforms.Compose([
             transforms.Resize((256, 256)),
@@ -68,19 +58,10 @@ class SamDataset(Dataset):
             transforms.ToTensor(),
         ])
 
-        self.label = {
-            "COCO_val2014_000000491213": [8],
-            "COCO_val2014_000000516641": [4, 6],
-            "COCO_val2014_000000533137": [1, 8, 10, 11],
-            "COCO_val2014_000000542634": [3, 5, 6, 7, 8, 9, 11, 12, 22, 30, 37, 44, 62],
-            "COCO_val2014_000000543112": [3, 8, 44, 72],
-            "COCO_val2014_000000550576": [3],
-            "COCO_val2014_000000581062": [0, 3, 11, 28],
-            "COCO_val2014_000000576820": [0, 10]
-        }
+        with open("label.json", 'r') as j:
+            self.label = json.load(j)
 
-        self.label = {k: self.label[k]
-                      for k in self.label if k in image_ids}
+        self.label = self.label[type]
 
         self.dataset = []
 
@@ -114,7 +95,7 @@ class SamDataset(Dataset):
 
         combined_tensor = torch.cat([rgb_tensor, mask_tensor], dim=0)
 
-        return combined_tensor, label
+        return combined_tensor, int(label)
 
     def __len__(self):
         return self.dataset_size
