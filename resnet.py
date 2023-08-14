@@ -1,11 +1,11 @@
 
-from torchvision.models import resnet50
+from torchvision.models import resnet50, ResNet50_Weights
 import torch.nn as nn
 import torch
 
 
 def get_model(n_classes, image_channels=4):
-    model = resnet50(pretrained=False)
+    model = resnet50(weights=None)
 
     inft = model.fc.in_features
     model.fc = nn.Linear(in_features=inft, out_features=n_classes)
@@ -16,8 +16,8 @@ def get_model(n_classes, image_channels=4):
     return model
 
 
-def get_pretrained_model(n_classes, image_channels=4):
-    model = resnet50(pretrained=True)
+def get_pretrained_model(n_classes):
+    model = resnet50(weights=ResNet50_Weights.IMAGENET1K_V2)
     weight = model.conv1.weight.clone()
 
     model.conv1 = nn.Conv2d(4, 64, kernel_size=7,
@@ -38,3 +38,11 @@ def get_pretrained_model(n_classes, image_channels=4):
 if __name__ == "__main__":
     model = get_model(2, 4)
     pretrained_model = get_pretrained_model(2, 4)
+
+    input = torch.randn(1, 4, 256, 256)
+
+    output = model(input)
+    print(output.shape, output)
+
+    output = pretrained_model(input)
+    print(output.shape, output)
