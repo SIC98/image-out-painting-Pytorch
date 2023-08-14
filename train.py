@@ -9,10 +9,10 @@ from resnet import get_pretrained_model
 from loggers import OutputLogger
 from data import SamDataset
 
-pl.seed_everything(42)
 
+def main():
+    pl.seed_everything(42)
 
-if __name__ == "__main__":
     model = get_pretrained_model(n_classes=2)
     lightningmodule = LightningModule(model)
 
@@ -49,3 +49,7 @@ if __name__ == "__main__":
         train_dataloader,
         valid_dataloader
     )
+
+
+if __name__ == "__main__":
+    main()
