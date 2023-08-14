@@ -39,10 +39,10 @@ class LightningModule(pl.LightningModule):
         }
 
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
-        combined_tensor, _ = batch
-        output = self.model(combined_tensor)
+        x = batch
+        y_hat = self.model(x)
 
-        return torch.argmax(output, dim=1)
+        return torch.argmax(y_hat, dim=1)
 
     def on_train_epoch_end(self):
         self.log("train_acc", self.train_accuracy.compute())
