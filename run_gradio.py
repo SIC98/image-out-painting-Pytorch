@@ -7,41 +7,45 @@ from utils import fill_bottom, fill_top, fill_left, fill_right
 pl.seed_everything(42)
 
 
+def calculate_buffer(num):
+    remainder = num % 128
+    if remainder == 0:
+        return 0
+    else:
+        return 128 - remainder
+
+
 def image_mod(image, left_border, right_border, top_border, bottom_border):
     mask_image = Image.new('RGB', image.size, (0, 0, 0))
 
-    left_border, right_border, top_border, bottom_border = int(
-        left_border), int(right_border), int(top_border), int(bottom_border)
+    borders = [int(i)
+               for i in [left_border, top_border, right_border, bottom_border]]
+    buffers = [calculate_buffer(border) for border in borders]
+    borders = [i + j for i, j in zip(borders, buffers)]
 
-    print(image.size)
     w, h = image.size
-    result_w = w + left_border + right_border
-    result_h = h + top_border + bottom_border
-    add_w = -result_w % 8
-    add_h = -result_h % 8
 
-    border = (left_border, top_border, right_border +
-              add_w, bottom_border + add_h)
+    padded_borders = (borders[0], borders[1], borders[2], borders[3])
 
-    image = ImageOps.expand(image, border, fill='white')
-    mask_image = ImageOps.expand(mask_image, border, fill='white')
+    image = ImageOps.expand(image, padded_borders, fill='white')
+    mask_image = ImageOps.expand(mask_image, padded_borders, fill='white')
 
-    XYWH = [left_border, top_border, w, h]
+    XYWH = [borders[0], borders[1], w, h]
 
-    for _ in range(0, 2):
-        XYWH, image, mask_image = fill_bottom(XYWH, image, mask_image)
-        XYWH, image, mask_image = fill_left(XYWH, image, mask_image)
-        XYWH, image, mask_image = fill_top(XYWH, image, mask_image)
-        XYWH, image, mask_image = fill_right(XYWH, image, mask_image)
+    counts = [(x // 128) for x in borders]
 
-    # for _ in range(0, 2):
-    #     left_top, left_bottom, image, mask_image = fill_left(
-    #         left_top, left_bottom, image, mask_image)
-    #     right_bottom, right_top, image, mask_image = fill_right(
-    #         right_bottom, right_top, image, mask_image)
+    functions = [fill_bottom, fill_left, fill_top, fill_right]
+
+    while any(counts):
+        print(counts)
+        for i, func in enumerate(functions):
+            if counts[i] > 0:
+                XYWH, image, mask_image = func(
+                    XYWH, image, mask_image)
+                counts[i] -= 1
 
     width, height = image.size
-    return image.crop((0, 0, width - add_w, height - add_h))
+    return image.crop((buffers[0], buffers[1], width - buffers[2], height - buffers[3]))
 
 
 # demo = gr.Interface(
@@ -55,5 +59,6 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
 if __name__ == '__main__':
     image = Image.open('./images/bus.jpeg')
     print(image.size)
-    image = image_mod(image, 256, 256, 256, 256)
+    image = image_mod(image, 240, 241, 144, 220)
+    # image = image_mod(image, 256, 256, 256, 256)
     image.save('./results/bus.jpeg')
