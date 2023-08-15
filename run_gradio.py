@@ -26,18 +26,19 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
     image = ImageOps.expand(image, border, fill='white')
     mask_image = ImageOps.expand(mask_image, border, fill='white')
 
-    left_top, left_bottom, right_top, right_bottom = [left_border, top_border], [
-        left_border, top_border + h], [left_border + w, top_border], [left_border + w, top_border + h]
+    XYWH = [left_border, top_border, w, h]
 
     for _ in range(0, 2):
-        left_bottom, right_bottom, image, mask_image = fill_bottom(
-            left_bottom, right_bottom, image, mask_image)
-        left_top, left_bottom, image, mask_image = fill_left(
-            left_top, left_bottom, image, mask_image)
-        left_top, right_top, image, mask_image = fill_top(
-            left_top, right_top, image, mask_image)
-        right_bottom, right_top, image, mask_image = fill_right(
-            right_bottom, right_top, image, mask_image)
+        XYWH, image, mask_image = fill_bottom(XYWH, image, mask_image)
+        XYWH, image, mask_image = fill_left(XYWH, image, mask_image)
+        XYWH, image, mask_image = fill_top(XYWH, image, mask_image)
+        XYWH, image, mask_image = fill_right(XYWH, image, mask_image)
+
+    # for _ in range(0, 2):
+    #     left_top, left_bottom, image, mask_image = fill_left(
+    #         left_top, left_bottom, image, mask_image)
+    #     right_bottom, right_top, image, mask_image = fill_right(
+    #         right_bottom, right_top, image, mask_image)
 
     width, height = image.size
     return image.crop((0, 0, width - add_w, height - add_h))
@@ -52,7 +53,7 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
 # demo.launch()
 
 if __name__ == '__main__':
-    image = Image.open('./images/dog.png')
-    image = image.resize((1024, 1024))
+    image = Image.open('./images/bus.jpeg')
+    print(image.size)
     image = image_mod(image, 256, 256, 256, 256)
-    image.save('./results/dog.png')
+    image.save('./results/bus.jpeg')

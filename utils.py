@@ -24,8 +24,8 @@ half = 256
 quarter = 128
 
 
-def find_bottom(left_bottom, width):
-    x, y = left_bottom
+def find_bottom(XYWH):
+    x, y, width = (XYWH[0], XYWH[1] + XYWH[3], XYWH[2])
     search_list = []
 
     for i in range((width // half) - 1):
@@ -37,8 +37,8 @@ def find_bottom(left_bottom, width):
     return search_list
 
 
-def find_top(left_top, width):
-    x, y = left_top
+def find_top(XYWH):
+    x, y, width = (XYWH[0], XYWH[1], XYWH[2])
     search_list = []
 
     for i in range((width // half) - 1):
@@ -50,8 +50,8 @@ def find_top(left_top, width):
     return search_list
 
 
-def find_left(left_top, height):
-    x, y = left_top
+def find_left(XYWH):
+    x, y, height = (XYWH[0], XYWH[1], XYWH[3])
     search_list = []
 
     for i in range((height // half) - 1):
@@ -63,8 +63,8 @@ def find_left(left_top, height):
     return search_list
 
 
-def find_right(right_top, height):
-    x, y = right_top
+def find_right(XYWH):
+    x, y, height = (XYWH[0] + XYWH[2], XYWH[1], XYWH[3])
     search_list = []
 
     for i in range((height // half) - 1):
@@ -76,44 +76,42 @@ def find_right(right_top, height):
     return search_list
 
 
-def fill_bottom(left_bottom, right_bottom, image, mask_image):
-    search_list = find_bottom(left_bottom, right_bottom[0] - left_bottom[0])
+def fill_bottom(XYWH, image, mask_image):
+    search_list = find_bottom(XYWH)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    left_bottom[1] += quarter
-    right_bottom[1] += quarter
+    XYWH[3] += quarter
 
-    return left_bottom, right_bottom, image, mask_image
+    return XYWH, image, mask_image
 
 
-def fill_left(left_top, left_bottom, image, mask_image):
-    search_list = find_left(left_top, left_bottom[1] - left_top[1])
+def fill_left(XYWH, image, mask_image):
+    search_list = find_left(XYWH)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    left_bottom[0] -= quarter
-    left_top[0] -= quarter
+    XYWH[0] -= quarter
+    XYWH[2] += quarter
 
-    return left_top, left_bottom, image, mask_image
+    return XYWH, image, mask_image
 
 
-def fill_right(right_bottom, right_top, image, mask_image):
-    search_list = find_right(right_top, right_bottom[1] - right_top[1])
+def fill_right(XYWH, image, mask_image):
+    search_list = find_right(XYWH)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    right_top[0] += quarter
-    right_bottom[0] += quarter
+    XYWH[2] += quarter
 
-    return right_bottom, right_top, image, mask_image
+    return XYWH, image, mask_image
 
 
-def fill_top(left_top, right_top, image, mask_image):
-    search_list = find_top(left_top, right_top[0] - left_top[0])
+def fill_top(XYWH, image, mask_image):
+    search_list = find_top(XYWH)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    left_top[1] -= quarter
-    right_top[1] -= quarter
+    XYWH[1] -= quarter
+    XYWH[3] += quarter
 
-    return left_top, right_top, image, mask_image
+    return XYWH, image, mask_image
 
 
 def fill_search_list(search_list, image, mask_image):
