@@ -1,14 +1,14 @@
 import pytorch_lightning as pl
 import gradio as gr
 
-from repainting import sepia
-from out_painting import image_mod
+from repainting import repaint
+from out_painting import outpaint
 
 pl.seed_everything(42)
 
 
 with gr.Blocks() as demo:
-    gr.Markdown("Out-painting & Re-painting demo")
+    gr.Markdown("Out painting & Repainting demo")
     with gr.Tab("Out painting"):
         with gr.Row():
             first_img = gr.Image()
@@ -25,9 +25,9 @@ with gr.Blocks() as demo:
             target_img = gr.Image()
         repaint_button = gr.Button("Paint")
 
-    outpaint_button.click(image_mod, inputs=[first_img, left_border, top_border, right_border, bottom_border],
+    outpaint_button.click(outpaint, inputs=[first_img, left_border, top_border, right_border, bottom_border],
                           outputs=outpaint_img)
-    repaint_button.click(sepia, inputs=second_img,
+    repaint_button.click(repaint, inputs=second_img,
                          outputs=[replace_img, target_img])
 
 demo.launch()

@@ -171,7 +171,7 @@ def calculate_buffer(num):
         return 128 - remainder
 
 
-def image_mod(image, left_border, top_border, right_border, bottom_border):
+def outpaint(image, left_border, top_border, right_border, bottom_border):
     image = Image.fromarray(image)
     mask_image = Image.new('RGB', image.size, (0, 0, 0))
 

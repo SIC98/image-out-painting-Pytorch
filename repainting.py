@@ -49,7 +49,7 @@ def mask_image(img, masks, indices_of_ones):
     return result_img
 
 
-def sepia(input_img):
+def repaint(input_img):
     sam = sam_model_registry[model_type](checkpoint=sam_checkpoint)
     sam.to(device=device)
 
