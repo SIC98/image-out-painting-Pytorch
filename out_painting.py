@@ -7,12 +7,12 @@ import torch
 # pipe = StableDiffusionInpaintPipeline.from_single_file(
 #     "./civit_ai/dreamshaper_8Inpainting.safetensors",
 #     torch_dtype=torch.float16,
-# ).to('cuda')
+# ).to("cuda")
 
 pipe = StableDiffusionInpaintPipeline.from_pretrained(
     "stabilityai/stable-diffusion-2-inpainting",
     torch_dtype=torch.float16,
-).to('cuda')
+).to("cuda")
 
 pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(
     pipe.scheduler.config
@@ -24,8 +24,8 @@ half = 256
 quarter = 128
 
 
-def find_bottom(XYWH):
-    x, y, width = (XYWH[0], XYWH[1] + XYWH[3], XYWH[2])
+def find_bottom(xywh):
+    x, y, width = (xywh[0], xywh[1] + xywh[3], xywh[2])
     search_list = []
 
     for i in range((width // half) - 1):
@@ -37,8 +37,8 @@ def find_bottom(XYWH):
     return search_list
 
 
-def find_top(XYWH):
-    x, y, width = (XYWH[0], XYWH[1], XYWH[2])
+def find_top(xywh):
+    x, y, width = (xywh[0], xywh[1], xywh[2])
     search_list = []
 
     for i in range((width // half) - 1):
@@ -50,8 +50,8 @@ def find_top(XYWH):
     return search_list
 
 
-def find_left(XYWH):
-    x, y, height = (XYWH[0], XYWH[1], XYWH[3])
+def find_left(xywh):
+    x, y, height = (xywh[0], xywh[1], xywh[3])
     search_list = []
 
     for i in range((height // half) - 1):
@@ -63,8 +63,8 @@ def find_left(XYWH):
     return search_list
 
 
-def find_right(XYWH):
-    x, y, height = (XYWH[0] + XYWH[2], XYWH[1], XYWH[3])
+def find_right(xywh):
+    x, y, height = (xywh[0] + xywh[2], xywh[1], xywh[3])
     search_list = []
 
     for i in range((height // half) - 1):
@@ -76,48 +76,48 @@ def find_right(XYWH):
     return search_list
 
 
-def fill_bottom(XYWH, image, mask_image):
-    search_list = find_bottom(XYWH)
+def fill_bottom(xywh, image, mask_image):
+    search_list = find_bottom(xywh)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    XYWH[3] += quarter
+    xywh[3] += quarter
 
-    return XYWH, image, mask_image
+    return xywh, image, mask_image
 
 
-def fill_left(XYWH, image, mask_image):
-    search_list = find_left(XYWH)
+def fill_left(xywh, image, mask_image):
+    search_list = find_left(xywh)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    XYWH[0] -= quarter
-    XYWH[2] += quarter
+    xywh[0] -= quarter
+    xywh[2] += quarter
 
-    return XYWH, image, mask_image
+    return xywh, image, mask_image
 
 
-def fill_right(XYWH, image, mask_image):
-    search_list = find_right(XYWH)
+def fill_right(xywh, image, mask_image):
+    search_list = find_right(xywh)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    XYWH[2] += quarter
+    xywh[2] += quarter
 
-    return XYWH, image, mask_image
+    return xywh, image, mask_image
 
 
-def fill_top(XYWH, image, mask_image):
-    search_list = find_top(XYWH)
+def fill_top(xywh, image, mask_image):
+    search_list = find_top(xywh)
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    XYWH[1] -= quarter
-    XYWH[3] += quarter
+    xywh[1] -= quarter
+    xywh[3] += quarter
 
-    return XYWH, image, mask_image
+    return xywh, image, mask_image
 
 
 def fill_search_list(search_list, image, mask_image):
     for x, y in search_list:
         # Create new mask
-        new_mask_image = Image.new('RGB', mask_image.size, (255, 255, 255))
+        new_mask_image = Image.new("RGB", mask_image.size, (255, 255, 255))
         mask_image_np = np.array(new_mask_image)
 
         # Fill the mask
@@ -126,10 +126,10 @@ def fill_search_list(search_list, image, mask_image):
         # Mask to PIL
         new_mask_image = Image.fromarray(mask_image_np)
 
-        mask2_gray = new_mask_image.convert('L')
+        mask2_gray = new_mask_image.convert("L")
         mask2_array = np.array(mask2_gray)
 
-        mask1_gray = mask_image.convert('L')
+        mask1_gray = mask_image.convert("L")
         mask1_array = np.array(mask1_gray)
 
         # Generate and merge image
@@ -148,14 +148,13 @@ def crop_image(image, result_mask, x, y, m, n):
     cropped_image = image.crop((x, y, m, n))
     cropped_mask = result_mask.crop((x, y, m, n))
 
-    images = pipe(prompt='', image=cropped_image,
+    images = pipe(prompt="", image=cropped_image,
                   mask_image=cropped_mask, height=m-x, width=n-y, num_inference_steps=50).images
 
     return images[0]
 
 
 def merge_image(image, generated_image, mask2_gray, x, y):
-    mask2_gray.save('mask2_gray.png')
     mask = mask2_gray.crop(
         (x, y, x + generated_image.width, y + generated_image.height))
     image.paste(generated_image, (x, y), mask)
@@ -173,7 +172,7 @@ def calculate_buffer(num):
 
 def outpaint(image, left_border, top_border, right_border, bottom_border):
     image = Image.fromarray(image)
-    mask_image = Image.new('RGB', image.size, (0, 0, 0))
+    mask_image = Image.new("RGB", image.size, (0, 0, 0))
 
     borders = [int(i)
                for i in [left_border, top_border, right_border, bottom_border]]
@@ -184,21 +183,20 @@ def outpaint(image, left_border, top_border, right_border, bottom_border):
 
     padded_borders = (borders[0], borders[1], borders[2], borders[3])
 
-    image = ImageOps.expand(image, padded_borders, fill='white')
-    mask_image = ImageOps.expand(mask_image, padded_borders, fill='white')
+    image = ImageOps.expand(image, padded_borders, fill="white")
+    mask_image = ImageOps.expand(mask_image, padded_borders, fill="white")
 
-    XYWH = [borders[0], borders[1], w, h]
+    xywh = [borders[0], borders[1], w, h]
 
     counts = [(x // 128) for x in borders]
 
     functions = [fill_left, fill_top, fill_right, fill_bottom]
 
     while any(counts):
-        print(counts)
         for i, func in enumerate(functions):
             if counts[i] > 0:
-                XYWH, image, mask_image = func(
-                    XYWH, image, mask_image)
+                xywh, image, mask_image = func(
+                    xywh, image, mask_image)
                 counts[i] -= 1
 
     width, height = image.size
