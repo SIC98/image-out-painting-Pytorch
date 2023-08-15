@@ -4,15 +4,15 @@ from PIL import Image, ImageOps
 import numpy as np
 import torch
 
-pipe = StableDiffusionInpaintPipeline.from_single_file(
-    "./civit_ai/dreamshaper_8Inpainting.safetensors",
-    torch_dtype=torch.float16,
-).to('cuda')
-
-# pipe = StableDiffusionInpaintPipeline.from_pretrained(
-#     "stabilityai/stable-diffusion-2-inpainting",
+# pipe = StableDiffusionInpaintPipeline.from_single_file(
+#     "./civit_ai/dreamshaper_8Inpainting.safetensors",
 #     torch_dtype=torch.float16,
 # ).to('cuda')
+
+pipe = StableDiffusionInpaintPipeline.from_pretrained(
+    "stabilityai/stable-diffusion-2-inpainting",
+    torch_dtype=torch.float16,
+).to('cuda')
 
 pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(
     pipe.scheduler.config
@@ -148,7 +148,8 @@ def crop_image(image, result_mask, x, y, m, n):
     cropped_mask = result_mask.crop((x, y, m, n))
 
     images = pipe(prompt='', image=cropped_image,
-                  mask_image=cropped_mask, height=m-x, width=n-y).images
+                  mask_image=cropped_mask, height=m-x, width=n-y, num_inference_steps=50).images
+
     return images[0]
 
 
