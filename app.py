@@ -2,9 +2,8 @@ import pytorch_lightning as pl
 from PIL import Image, ImageOps
 import gradio as gr
 
-from utils import fill_bottom, fill_top, fill_left, fill_right
 from sam_gradio import sepia
-from utils import image_mod
+from out_painting import image_mod
 
 pl.seed_everything(42)
 
