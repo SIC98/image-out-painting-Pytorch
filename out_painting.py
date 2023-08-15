@@ -121,7 +121,7 @@ def fill_search_list(search_list, image, mask_image):
         mask_image_np = np.array(new_mask_image)
 
         # Fill the mask
-        mask_image_np[y:y+512, x:x+512] = (0, 0, 0)
+        mask_image_np[y:y+window_size, x:x+window_size] = (0, 0, 0)
 
         # Mask to PIL
         new_mask_image = Image.fromarray(mask_image_np)
@@ -133,7 +133,8 @@ def fill_search_list(search_list, image, mask_image):
         mask1_array = np.array(mask1_gray)
 
         # Generate and merge image
-        generated_image = crop_image(image, mask_image, x, y, x + 512, y + 512)
+        generated_image = crop_image(
+            image, mask_image, x, y, x+window_size, y+window_size)
         image = merge_image(image, generated_image, mask1_gray, x, y)
 
         # Update mask_image
@@ -158,7 +159,6 @@ def merge_image(image, generated_image, mask2_gray, x, y):
     mask = mask2_gray.crop(
         (x, y, x + generated_image.width, y + generated_image.height))
     image.paste(generated_image, (x, y), mask)
-    # image.paste(generated_image, (x, y))
     return image
 
 
