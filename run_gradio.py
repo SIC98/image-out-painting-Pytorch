@@ -3,6 +3,7 @@ from PIL import Image, ImageOps
 import gradio as gr
 
 from utils import fill_bottom, fill_top, fill_left, fill_right
+from sam_gradio import sepia
 
 pl.seed_everything(42)
 
@@ -15,7 +16,8 @@ def calculate_buffer(num):
         return 128 - remainder
 
 
-def image_mod(image, left_border, right_border, top_border, bottom_border):
+def image_mod(image, left_border, top_border, right_border, bottom_border):
+    image = Image.fromarray(image)
     mask_image = Image.new('RGB', image.size, (0, 0, 0))
 
     borders = [int(i)
@@ -34,7 +36,7 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
 
     counts = [(x // 128) for x in borders]
 
-    functions = [fill_bottom, fill_left, fill_top, fill_right]
+    functions = [fill_left, fill_top, fill_right, fill_bottom]
 
     while any(counts):
         print(counts)
@@ -57,8 +59,28 @@ def image_mod(image, left_border, right_border, top_border, bottom_border):
 # demo.launch()
 
 if __name__ == '__main__':
-    image = Image.open('./images/bus.jpeg')
-    print(image.size)
-    image = image_mod(image, 240, 241, 144, 220)
-    # image = image_mod(image, 256, 256, 256, 256)
-    image.save('./results/bus.jpeg')
+
+    with gr.Blocks() as demo:
+        gr.Markdown("Flip text or image files using this demo.")
+        with gr.Tab("Flip Text"):
+            with gr.Row():
+                input_img = gr.Image()
+                replace_img = gr.Image()
+                target_img = gr.Image()
+            repaint_button = gr.Button("repaint")
+        with gr.Tab("Out painting"):
+            with gr.Row():
+                input_img = gr.Image()
+                outpaint_img = gr.Image()
+            left_border = gr.Textbox(label="left border")
+            right_border = gr.Textbox(label="right border")
+            top_border = gr.Textbox(label="top border")
+            bottom_border = gr.Textbox(label="bottom border")
+            outpaint_button = gr.Button("Paint")
+
+        repaint_button.click(sepia, inputs=input_img,
+                             outputs=[replace_img, target_img])
+        outpaint_button.click(image_mod, inputs=[input_img, left_border, top_border, right_border, bottom_border],
+                              outputs=outpaint_img)
+
+    demo.launch()
