@@ -1,7 +1,7 @@
 import pytorch_lightning as pl
 import gradio as gr
 
-from sam_gradio import sepia
+from repainting import sepia
 from out_painting import image_mod
 
 pl.seed_everything(42)
