@@ -135,7 +135,7 @@ def fill_search_list(search_list, image, mask_image):
         # Generate and merge image
         generated_image = crop_image(
             image, mask_image, x, y, x+window_size, y+window_size)
-        image = merge_image(image, generated_image, mask1_gray, x, y)
+        image, _ = merge_image(image, generated_image, mask1_gray, x, y)
 
         # Update mask_image
         result_array = np.logical_and(mask1_array == 255, mask2_array == 255)
@@ -155,11 +155,13 @@ def crop_image(image, result_mask, x, y, m, n):
     return images[0]
 
 
-def merge_image(image, generated_image, mask2_gray, x, y):
-    mask = mask2_gray.crop(
+def merge_image(image, generated_image, mask, x, y):
+    cropped_mask = mask.crop(
         (x, y, x + generated_image.width, y + generated_image.height))
-    image.paste(generated_image, (x, y), mask)
-    return image
+    black_img = Image.new("L", cropped_mask.size, 0)
+    image.paste(generated_image, (x, y), cropped_mask)
+    mask.paste(black_img, (x, y), cropped_mask)
+    return image, mask
 
 
 def calculate_buffer(num):
