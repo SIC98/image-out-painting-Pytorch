@@ -18,16 +18,21 @@ pipe.scheduler = EulerAncestralDiscreteScheduler.from_config(
     pipe.scheduler.config
 )
 
+window_size = 512
+three_quarters = 384
+half = 256
+quarter = 128
+
 
 def find_bottom(left_bottom, width):
     x, y = left_bottom
     search_list = []
 
-    for i in range((width // 256) - 1):
-        search_list.append((x + i * 256, y - 384))
+    for i in range((width // half) - 1):
+        search_list.append((x + i * half, y - three_quarters))
 
-    if width % 256 != 0:
-        search_list.append((x + width - 512, y - 384))
+    if width % half != 0:
+        search_list.append((x + width - window_size, y - three_quarters))
 
     return search_list
 
@@ -36,11 +41,11 @@ def find_top(left_top, width):
     x, y = left_top
     search_list = []
 
-    for i in range((width // 256) - 1):
-        search_list.append((x + i * 256, y - 128))
+    for i in range((width // half) - 1):
+        search_list.append((x + i * half, y - quarter))
 
-    if width % 256 != 0:
-        search_list.append((x + width - 512, y - 128))
+    if width % half != 0:
+        search_list.append((x + width - window_size, y - quarter))
 
     return search_list
 
@@ -49,11 +54,11 @@ def find_left(left_top, height):
     x, y = left_top
     search_list = []
 
-    for i in range((height // 256) - 1):
-        search_list.append((x - 128, y + i * 256))
+    for i in range((height // half) - 1):
+        search_list.append((x - quarter, y + i * half))
 
-    if height % 256 != 0:
-        search_list.append((x - 128, y + height - 512))
+    if height % half != 0:
+        search_list.append((x - quarter, y + height - window_size))
 
     return search_list
 
@@ -62,11 +67,11 @@ def find_right(right_top, height):
     x, y = right_top
     search_list = []
 
-    for i in range((height // 256) - 1):
-        search_list.append((x - 384, y + i * 256))
+    for i in range((height // half) - 1):
+        search_list.append((x - three_quarters, y + i * half))
 
-    if height % 256 != 0:
-        search_list.append((x - 384, y + height - 512))
+    if height % half != 0:
+        search_list.append((x - three_quarters, y + height - window_size))
 
     return search_list
 
@@ -75,8 +80,8 @@ def fill_bottom(left_bottom, right_bottom, image, mask_image):
     search_list = find_bottom(left_bottom, right_bottom[0] - left_bottom[0])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    left_bottom[1] += 128
-    right_bottom[1] += 128
+    left_bottom[1] += quarter
+    right_bottom[1] += quarter
 
     return left_bottom, right_bottom, image, mask_image
 
@@ -85,8 +90,8 @@ def fill_left(left_top, left_bottom, image, mask_image):
     search_list = find_left(left_top, left_bottom[1] - left_top[1])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    left_bottom[0] -= 128
-    left_top[0] -= 128
+    left_bottom[0] -= quarter
+    left_top[0] -= quarter
 
     return left_top, left_bottom, image, mask_image
 
@@ -95,8 +100,8 @@ def fill_right(right_bottom, right_top, image, mask_image):
     search_list = find_right(right_top, right_bottom[1] - right_top[1])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    right_top[0] += 128
-    right_bottom[0] += 128
+    right_top[0] += quarter
+    right_bottom[0] += quarter
 
     return right_bottom, right_top, image, mask_image
 
@@ -105,8 +110,8 @@ def fill_top(left_top, right_top, image, mask_image):
     search_list = find_top(left_top, right_top[0] - left_top[0])
     image, mask_image = fill_search_list(search_list, image, mask_image)
 
-    left_top[1] -= 128
-    right_top[1] -= 128
+    left_top[1] -= quarter
+    right_top[1] -= quarter
 
     return left_top, right_top, image, mask_image
 
