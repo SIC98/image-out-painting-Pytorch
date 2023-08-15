@@ -63,19 +63,3 @@ def sepia(input_img):
     output_img = mask_image(output_img, masks, indices_of_ones)
 
     return output_img, output_img
-
-
-if __name__ == "__main__":
-    with gr.Blocks() as demo:
-        gr.Markdown("Flip text or image files using this demo.")
-        with gr.Tab("Flip Text"):
-            with gr.Row():
-                input_img = gr.Image()
-                output_img = gr.Image()
-                output_img2 = gr.Image()
-            image_button = gr.Button("repaint")
-
-        image_button.click(sepia, inputs=input_img,
-                           outputs=[output_img, output_img2])
-
-    demo.launch()
