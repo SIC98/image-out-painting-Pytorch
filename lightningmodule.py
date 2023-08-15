@@ -55,7 +55,7 @@ class LightningModule(pl.LightningModule):
     def configure_optimizers(self):
         optimizer = torch.optim.AdamW(
             params=self.parameters(),
-            lr=1e-3,
+            lr=1e-4,
         )
 
         return optimizer
