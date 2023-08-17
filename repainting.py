@@ -28,7 +28,7 @@ def predict(input_img, masks):
         lightningmodule,
         dataloader,
         return_predictions=True,
-        ckpt_path="./wandb/run-20230814_210329-kt28nagp/files/epoch=99-step=3700.ckpt",
+        ckpt_path="./wandb/run-20230816_204314-xqk6s32e/files/epoch=99-step=7700.ckpt"
     )
 
     combined_y_hat = torch.cat(y_hat)
