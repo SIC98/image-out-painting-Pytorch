@@ -1,5 +1,4 @@
-from pytorch_lightning import LightningDataModule
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from torchvision import transforms
 from PIL import Image
 import numpy as np
@@ -29,7 +28,7 @@ class DummyDataset(Dataset):
 class SamDataset(DummyDataset):
     def __init__(self, type):
         super().__init__()
-        with open("label.json", 'r') as j:
+        with open("label.json", "r") as j:
             self.label = json.load(j)
 
         self.label = self.label[type]
@@ -94,7 +93,7 @@ class CustomSamDataset(DummyDataset):
 
 def mask_array_to_image(mask_array):
     img_array = mask_array.astype(np.uint8) * 255
-    img = Image.fromarray(img_array, 'L')
+    img = Image.fromarray(img_array, "L")
 
     return img
 

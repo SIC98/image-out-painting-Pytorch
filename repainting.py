@@ -1,4 +1,4 @@
-from segment_anything import sam_model_registry, SamAutomaticMaskGenerator, SamPredictor
+from segment_anything import sam_model_registry, SamAutomaticMaskGenerator
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 import numpy as np
@@ -84,7 +84,7 @@ def repaint(input_img):
 
     mask_generator = SamAutomaticMaskGenerator(sam)
     masks = mask_generator.generate(input_img)
-    segmentation = [mask['segmentation'] for mask in masks]
+    segmentation = [mask["segmentation"] for mask in masks]
 
     input_img = Image.fromarray(input_img, "RGB")
     indices_of_ones = predict(input_img, segmentation)

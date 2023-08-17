@@ -4,11 +4,6 @@ from PIL import Image, ImageOps
 import numpy as np
 import torch
 
-# pipe = StableDiffusionInpaintPipeline.from_single_file(
-#     "./civit_ai/dreamshaper_8Inpainting.safetensors",
-#     torch_dtype=torch.float16,
-# ).to("cuda")
-
 pipe = StableDiffusionInpaintPipeline.from_pretrained(
     "stabilityai/stable-diffusion-2-inpainting",
     torch_dtype=torch.float16,

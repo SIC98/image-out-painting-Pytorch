@@ -1,7 +1,6 @@
-from typing import Any
-
 import pytorch_lightning as pl
 from pytorch_lightning.utilities.types import STEP_OUTPUT
+from typing import Any
 
 
 class OutputLogger(pl.Callback):
@@ -27,7 +26,7 @@ class OutputLogger(pl.Callback):
         batch: Any,
         batch_idx: int,
     ) -> None:
-        loss = outputs['loss']
+        loss = outputs["loss"]
         self.train_loss.append(loss)
 
     def on_train_epoch_end(
@@ -36,7 +35,7 @@ class OutputLogger(pl.Callback):
             pl_module: pl.LightningModule
     ) -> None:
         pl_module.log(
-            'train_loss',
+            "train_loss",
             sum(self.train_loss) / len(self.train_loss)
         )
 
@@ -49,7 +48,7 @@ class OutputLogger(pl.Callback):
         batch_idx: int,
         dataloader_idx: int = 0,
     ) -> None:
-        loss = outputs['loss']
+        loss = outputs["loss"]
         self.valid_loss.append(loss)
 
     def on_validation_epoch_end(
@@ -59,6 +58,6 @@ class OutputLogger(pl.Callback):
     ) -> None:
 
         pl_module.log(
-            'valid_loss',
+            "valid_loss",
             sum(self.valid_loss) / len(self.valid_loss)
         )

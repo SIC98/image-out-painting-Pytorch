@@ -3,8 +3,8 @@ import os
 
 from out_painting import outpaint
 
-coco_data_path = 'coco2014/val2014/'
-out_painted_path = 'coco2014/out_painted/'
+coco_data_path = "coco2014/val2014/"
+out_painted_path = "coco2014/out_painted/"
 
 # list to store files
 all_files_and_dirs = os.listdir(coco_data_path)
