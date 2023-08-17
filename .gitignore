@@ -251,3 +251,18 @@ wandb/
 
 #  Jupyter Notebook
 *.ipynb
+
+# SAM ckpt file
+sam_vit_h_4b8939.pth
+
+# cloned SAM repo
+segment-anything/
+
+# sivit ai safetensor
+civit_ai/
+
+# Ignore lightning logs
+lightning_logs/
+
+# Todo: flagged folder
+flagged/
