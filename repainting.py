@@ -15,6 +15,8 @@ sam_checkpoint = "sam_vit_h_4b8939.pth"
 model_type = "vit_h"
 device = "cuda"
 
+ckpt_path = "/path/to/ckpt.ckpt"
+
 
 def predict(input_img, masks):
     trainer = pl.Trainer(accelerator="gpu")
@@ -28,7 +30,7 @@ def predict(input_img, masks):
         lightningmodule,
         dataloader,
         return_predictions=True,
-        ckpt_path="./wandb/run-20230816_204314-xqk6s32e/files/epoch=99-step=7700.ckpt"
+        ckpt_path=ckpt_path
     )
 
     combined_y_hat = torch.cat(y_hat)

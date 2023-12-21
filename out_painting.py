@@ -71,18 +71,18 @@ def find_right(xywh):
     return search_list
 
 
-def fill_bottom(xywh, image, mask_image):
+def paint_bottom(xywh, image, mask_image):
     search_list = find_bottom(xywh)
-    image, mask_image = fill_search_list(search_list, image, mask_image)
+    image, mask_image = paint_search_list(search_list, image, mask_image)
 
     xywh[3] += quarter
 
     return xywh, image, mask_image
 
 
-def fill_left(xywh, image, mask_image):
+def paint_left(xywh, image, mask_image):
     search_list = find_left(xywh)
-    image, mask_image = fill_search_list(search_list, image, mask_image)
+    image, mask_image = paint_search_list(search_list, image, mask_image)
 
     xywh[0] -= quarter
     xywh[2] += quarter
@@ -90,18 +90,18 @@ def fill_left(xywh, image, mask_image):
     return xywh, image, mask_image
 
 
-def fill_right(xywh, image, mask_image):
+def paint_right(xywh, image, mask_image):
     search_list = find_right(xywh)
-    image, mask_image = fill_search_list(search_list, image, mask_image)
+    image, mask_image = paint_search_list(search_list, image, mask_image)
 
     xywh[2] += quarter
 
     return xywh, image, mask_image
 
 
-def fill_top(xywh, image, mask_image):
+def paint_top(xywh, image, mask_image):
     search_list = find_top(xywh)
-    image, mask_image = fill_search_list(search_list, image, mask_image)
+    image, mask_image = paint_search_list(search_list, image, mask_image)
 
     xywh[1] -= quarter
     xywh[3] += quarter
@@ -109,7 +109,7 @@ def fill_top(xywh, image, mask_image):
     return xywh, image, mask_image
 
 
-def fill_search_list(search_list, image, mask_image):
+def paint_search_list(search_list, image, mask_image):
     for x, y in search_list:
         # Create new mask
         new_mask_image = Image.new("RGB", mask_image.size, (255, 255, 255))
@@ -187,7 +187,7 @@ def outpaint(image, left_border, top_border, right_border, bottom_border):
 
     counts = [(x // 128) for x in borders]
 
-    functions = [fill_left, fill_top, fill_right, fill_bottom]
+    functions = [paint_left, paint_top, paint_right, paint_bottom]
 
     while any(counts):
         for i, func in enumerate(functions):

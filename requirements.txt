@@ -1,0 +1,11 @@
+accelerate
+gradio
+torchmetrics
+torch==2.0.1
+torchvision==0.15.2
+diffusers==0.19.3
+transformers
+pytorch-lightning
+pillow
+opencv-python
+wandb
