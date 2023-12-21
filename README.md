@@ -42,6 +42,59 @@ I trained the Resnet50 model to perform binary classification on awkward areas a
 - The time it takes for out-painting increases significantly as the resolution of the image increases.
 - More labeling data is required for higher reliability of the classification model.
 
+## How to run my code
+
+1. Install Python dependency & clone and install SAM repo.
+```
+pip install -r requirements.txt
+git clone git@github.com:facebookresearch/segment-anything.git
+cd segment-anything; pip install -e .
+```
+2. Download the resources needed for model training. The data has been saved in the following folder structure.
+
+- coco2014/val2014: [Download link](http://images.cocodataset.org/zips/val2014.zip)
+- sam_vit_h_4b8939.pth: [Download link](https://dl.fbaipublicfiles.com/segment_anything/sam_vit_h_4b8939.pth)
+```
+.
+├── coco2014
+│   ├── val2014
+│   │   ├── COCO_val2014_000000001987.jpg
+│   │   ├── COCO_val2014_000000002764.jpg
+│   │   └── ...
+│   ├── mask
+│   │   ├── COCO_val2014_000000001987
+│   │   │   ├── 0.png
+│   │   │   └── ...
+│   │   ├── COCO_val2014_000000002764
+│   │   │    ├── 0.png
+│   │   │    └── ...
+│   │   └── ...
+│   ├── out_painted
+│   │   ├── COCO_val2014_000000001987.jpg
+│   │   ├── COCO_val2014_000000002764.jpg
+│   │   └── ...
+│   └──  
+├── label.json
+├── sam_vit_h_4b8939.pth
+```
+3. The data in the `coco2014/out_painted` and `coco2014/mask` folders can be obtained by executing the following.
+```
+python prepare_image.py
+sh run_sam.sh
+```
+4. Train Resnet (SAM object classification) model.
+```
+python train.py
+```
+5. In `repainting.py`, specify the `ckpt_path` and run Gradio.
+```
+python app.py
+```
+
+
+
+
+
 
 
 
