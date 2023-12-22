@@ -18,7 +18,7 @@ Gradio app for image out-painting and re-painting.
 
 - From the Hugging Face Hub, I used the painting model [stabilityai/stable-diffusion-2-inpainting](https://huggingface.co/stabilityai/stable-diffusion-2-inpainting) and the Euler Ancestral scheduler.
 - I employ a strategy of repeatedly out-painting up to a 512x512 area at a time to perform out-painting on large images.
-- The process of painting a 1024 x 1024 image can be visualized as follows.
+- The process of painting a 2048 x 2048 image can be visualized as follows.
 
 | Step 0                                                                                                             | Step 1                                                                                                             | Step 2                                                                                                             | Step 7                                                                                                             |
 | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------ |
